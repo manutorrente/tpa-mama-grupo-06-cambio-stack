@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+
+<div class="mx-auto p-5 flex flex-col items-center md:flex-row w-full">
+    <div class="w-full md:w-1/2">
+        <div class="flex items-center space-x-4 mb-2 mx-auto">
+            <label for="filter" class="text-white">Filtro:</label>
+            <select id="filter" class="border rounded-md py-1 px-2" onchange="searchFilter()">
+              <option value="todos" {% if filter_param == 'todos' %}selected{% endif %}>Todos</option>
+              <option value="abierto" {% if filter_param == 'abierto' %}selected{% endif %}>Abierto</option>
+              <option value="cerrado" {% if filter_param == 'cerrado' %}selected{% endif %}>Cerrado</option>
+            </select>
+        </div>
+  
+        <div class="space-y-4 incidentesContainer w-full overflow-y-auto h-full">
+            {% for incidente in incidentes %}
+                <a href="/incidentes/{{ incidente.id }}"
+                    class="cristal incidente secondary"
+                    data-abierto="{{ incidente.abierto }}"
+                    {% if incidente.abierto %}
+                        style="display: {% if filter_param == 'abierto' or filter_param == 'todos' %}flex{% else %}none{% endif %};"
+                    {% else %}
+                        style="display: {% if filter_param == 'cerrado' or filter_param == 'todos' %}flex{% else %}none{% endif %};"
+                    {% endif %}
+                >
+                    <div class="leftContainer">
+                        <h2 class="text-lg font-semibold">{{ incidente.prestacion_de_servicio.nombre }}</h2>
+                        <p class="text-sm text-gray-500 overflow-hidden whitespace-nowrap text-ellipsis block w-24">{{ incidente.observaciones }}</p>
+                        <div class="mt-4 flex flex-col sm:flex-row">
+                            <span class="mr-2 text-gray-400">por <strong>{{ incidente.abiertopor.nombre }}</strong> </span>
+                            <span class="text-gray-400">{{ incidente.fecha_de_apertura }}</span>
+                        </div>
+                    </div>
+                    {% if incidente.abierto %}
+                        <div class="icono bg-green-400">
+                            <i class="fas fa-lock-open fa-lg"></i>
+                        </div>
+                    {% else %}
+                        <div class="icono bg-red-400">
+                            <i class="fas fa-lock fa-lg"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+  </div>
+  
+  <script>
+    function searchFilter() {
+        var selectedValue = document.getElementById('filter').value;
+        var incidents = document.querySelectorAll('.incidente');
+
+        incidents.forEach(function(incident) {
+            var isAbierto = incident.getAttribute('data-abierto') === 'True';
+            console.log(isAbierto)
+
+            if ((selectedValue === 'abierto' && isAbierto) || (selectedValue === 'cerrado' && !isAbierto) || selectedValue === 'todos') {
+                incident.style.display = 'flex';
+            } else {
+                incident.style.display = 'none';
+            }
+        });
+    }
+
+    searchFilter();
+</script>
+
+  
+{% endblock %}
